@@ -1,0 +1,386 @@
+<html><head><base href="https://0.0.0.0"> 
+    <title>Sistema de Gerenciamento de Veículos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- CSS Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+    .login-container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        border-radius: 5px;
+    }
+    
+    .sidebar {
+        height: 100vh;
+        background: #343a40;
+        color: white;
+    }
+    
+    .content {
+        padding: 20px;
+    }
+    
+    .vehicle-card {
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .comment-section {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    </style>
+    </head>
+    <body>
+    
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <h2 class="text-center mb-4">Login</h2>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="loginEmail" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Senha</label>
+                <input type="password" class="form-control" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            <div class="text-center mt-3">
+                <a href="#" onclick="showForgotPassword()">Esqueci minha senha</a> |
+                <a href="#" onclick="showRegister()">Cadastrar</a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Main Application (Initially Hidden) -->
+    <div id="mainApp" style="display: none;">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <div class="col-md-2 sidebar p-3">
+                    <h4>Menu</h4>
+                    <ul class="nav flex-column">
+                        <li class="nav-item" id="vehiclesLink">
+                            <a class="nav-link text-white" href="#" onclick="showVehicles()">
+                                <i class="fas fa-car"></i> Veículos
+                            </a>
+                        </li>
+                        <li class="nav-item" id="employeesLink">
+                            <a class="nav-link text-white" href="#" onclick="showEmployees()">
+                                <i class="fas fa-users"></i> Funcionários
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Sair
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+    
+                <!-- Main Content -->
+                <div class="col-md-10 content">
+                    <!-- Vehicle Management Section -->
+                    <div id="vehicleSection">
+                        <h2>Gerenciamento de Veículos</h2>
+                        <button class="btn btn-primary mb-3" onclick="showVehicleForm()">
+                            <i class="fas fa-plus"></i> Novo Veículo
+                        </button>
+                        <div id="vehicleList" class="row">
+                            <!-- Vehicle cards will be dynamically added here -->
+                        </div>
+                    </div>
+    
+                    <!-- Employee Management Section -->
+                    <div id="employeeSection" style="display: none;">
+                        <h2>Gerenciamento de Funcionários</h2>
+                        <button class="btn btn-primary mb-3" onclick="showEmployeeForm()">
+                            <i class="fas fa-plus"></i> Novo Funcionário
+                        </button>
+                        <div id="employeeList">
+                            <!-- Employee list will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Vehicle Form -->
+    <div class="modal fade" id="vehicleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastro de Veículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="vehicleForm">
+                        <div class="mb-3">
+                            <label class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="brand" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Modelo</label>
+                            <input type="text" class="form-control" id="model" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ano</label>
+                            <input type="number" class="form-control" id="year" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cor</label>
+                            <input type="text" class="form-control" id="color" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Número de Registro</label>
+                            <input type="text" class="form-control" id="registrationNumber" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveVehicle()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for Employee Form -->
+    <div class="modal fade" id="employeeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastro de Funcionário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="employeeForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="employeeName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cargo</label>
+                            <input type="text" class="form-control" id="position" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Perfil</label>
+                            <select class="form-control" id="profile" required>
+                                <option value="administrator">Administrador</option>
+                                <option value="operator">Operador</option>
+                                <option value="consultant">Consultor</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEmployee()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap and other necessary scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // Mock data storage
+    let vehicles = [];
+    let employees = [];
+    let currentUser = null;
+    
+    // User Authentication
+    function login(email, password) {
+        // Mock authentication
+        if (email === "admin@example.com" && password === "admin") {
+            currentUser = {
+                id: 1,
+                name: "Admin",
+                role: "administrator",
+                email: email
+            };
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            loadVehicles();
+            return true;
+        }
+        alert("Credenciais inválidas!");
+        return false;
+    }
+    
+    function logout() {
+        currentUser = null;
+        document.getElementById('loginScreen').style.display = 'block';
+        document.getElementById('mainApp').style.display = 'none';
+    }
+    
+    // Vehicle Management
+    function showVehicleForm() {
+        new bootstrap.Modal(document.getElementById('vehicleModal')).show();
+    }
+    
+    function saveVehicle() {
+        const vehicle = {
+            id: vehicles.length + 1,
+            brand: document.getElementById('brand').value,
+            model: document.getElementById('model').value,
+            year: document.getElementById('year').value,
+            color: document.getElementById('color').value,
+            registrationNumber: document.getElementById('registrationNumber').value,
+            comments: [],
+            assignedTo: [],
+            createdBy: currentUser.id,
+            createdAt: new Date()
+        };
+        
+        vehicles.push(vehicle);
+        bootstrap.Modal.getInstance(document.getElementById('vehicleModal')).hide();
+        loadVehicles();
+    }
+    
+    function loadVehicles() {
+        const vehicleList = document.getElementById('vehicleList');
+        vehicleList.innerHTML = '';
+        
+        vehicles.forEach(vehicle => {
+            const card = document.createElement('div');
+            card.className = 'col-md-4';
+            card.innerHTML = `
+                <div class="card vehicle-card">
+                    <div class="card-body">
+                        <h5 class="card-title">${vehicle.brand} ${vehicle.model}</h5>
+                        <p class="card-text">
+                            Ano: ${vehicle.year}<br>
+                            Cor: ${vehicle.color}<br>
+                            Registro: ${vehicle.registrationNumber}
+                        </p>
+                        <div class="comment-section">
+                            <h6>Comentários:</h6>
+                            ${vehicle.comments.map(comment => `
+                                <p class="small">${comment.text} - ${comment.author}</p>
+                            `).join('')}
+                        </div>
+                        ${currentUser.role === 'administrator' ? `
+                            <button class="btn btn-sm btn-primary" onclick="editVehicle(${vehicle.id})">Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteVehicle(${vehicle.id})">Excluir</button>
+                        ` : ''}
+                        <button class="btn btn-sm btn-secondary" onclick="addComment(${vehicle.id})">Comentar</button>
+                    </div>
+                </div>
+            `;
+            vehicleList.appendChild(card);
+        });
+    }
+    
+    // Employee Management
+    function showEmployeeForm() {
+        new bootstrap.Modal(document.getElementById('employeeModal')).show();
+    }
+    
+    function saveEmployee() {
+        const employee = {
+            id: employees.length + 1,
+            name: document.getElementById('employeeName').value,
+            position: document.getElementById('position').value,
+            profile: document.getElementById('profile').value,
+            matricula: generateMatricula()
+        };
+        
+        employees.push(employee);
+        bootstrap.Modal.getInstance(document.getElementById('employeeModal')).hide();
+        loadEmployees();
+    }
+    
+    function generateMatricula() {
+        return 'MAT' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    }
+    
+    function loadEmployees() {
+        const employeeList = document.getElementById('employeeList');
+        employeeList.innerHTML = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Matrícula</th>
+                        <th>Nome</th>
+                        <th>Cargo</th>
+                        <th>Perfil</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${employees.map(employee => `
+                        <tr>
+                            <td>${employee.matricula}</td>
+                            <td>${employee.name}</td>
+                            <td>${employee.position}</td>
+                            <td>${employee.profile}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editEmployee(${employee.id})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${employee.id})">Excluir</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+    
+    // Navigation Functions
+    function showVehicles() {
+        document.getElementById('vehicleSection').style.display = 'block';
+        document.getElementById('employeeSection').style.display = 'none';
+    }
+    
+    function showEmployees() {
+        document.getElementById('vehicleSection').style.display = 'none';
+        document.getElementById('employeeSection').style.display = 'block';
+        loadEmployees();
+    }
+    
+    // Event Listeners
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        login(
+            document.getElementById('loginEmail').value,
+            document.getElementById('loginPassword').value
+        );
+    });
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add some sample data
+        vehicles.push({
+            id: 1,
+            brand: "Toyota",
+            model: "Corolla",
+            year: 2022,
+            color: "Prata",
+            registrationNumber: "ABC1234",
+            comments: [{
+                text: "Manutenção realizada em 01/01/2024",
+                author: "Admin"
+            }],
+            assignedTo: [1],
+            createdBy: 1,
+            createdAt: new Date()
+        });
+        
+        employees.push({
+            id: 1,
+            name: "João Silva",
+            position: "Gerente",
+            profile: "administrator",
+            matricula: "MAT0001"
+        });
+    });
+    </script>
+    </body></html>
